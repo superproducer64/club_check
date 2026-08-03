@@ -12,11 +12,13 @@
       "bundleIdentifier": "com.bgpstudios.clubcheck",
       "infoPlist": {
         "UIBackgroundModes": [
+          "location",
           "location"
         ],
         "NSLocationWhenInUseUsageDescription": "Club Check tracks your position on the course to know when you're leaving a green.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Club Check needs background location to remind you about clubs even when your phone is locked or in your pocket.",
-        "NSMotionUsageDescription": "Club Check uses motion data to detect walking vs. riding pace for more accurate reminders."
+        "NSMotionUsageDescription": "Club Check uses motion data to detect walking vs. riding pace for more accurate reminders.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
