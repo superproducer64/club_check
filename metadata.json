@@ -1,0 +1,10 @@
+{
+  "name": "ClubCheck",
+  "description": "Smart golf utility that detects green departures and announces 'Club Check' to prevent forgotten clubs.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
