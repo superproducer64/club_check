@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { confirmReminder, dismissReminder, flagFalsePositive } from '../../lib/detection/activeControllerRef';
+import { confirmReminder, dismissReminder, flagFalsePositive } from '../../lib/detection/roundSession';
 
 export default function ReminderModal() {
   const { reminderId } = useLocalSearchParams<{ reminderId: string }>();

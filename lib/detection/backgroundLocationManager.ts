@@ -16,8 +16,7 @@ interface StartTrackingOptions {
 }
 
 export async function startBackgroundTracking({ accuracy, onLocations }: StartTrackingOptions) {
-  const hasStarted = await TaskManager.isTaskRegisteredAsync(LOCATION_TASK_NAME);
-  if (hasStarted) {
+  if (await isTrackingRunning()) {
     await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
   }
 
@@ -29,19 +28,26 @@ export async function startBackgroundTracking({ accuracy, onLocations }: StartTr
     distanceInterval: 3,
     activityType: Location.ActivityType.Fitness,
     showsBackgroundLocationIndicator: true,
+    pausesUpdatesAutomatically: false,
     foregroundService: {
       notificationTitle: 'Club Check is watching your round',
       notificationBody: 'Monitoring for green departures',
       notificationColor: '#2E7D32',
     },
-    pausesUpdatesAutomatically: false,
   });
 }
 
 export async function stopBackgroundTracking() {
-  const hasStarted = await TaskManager.isTaskRegisteredAsync(LOCATION_TASK_NAME);
-  if (hasStarted) {
+  if (await isTrackingRunning()) {
     await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
   }
   unregisterLocationHandler();
+}
+
+export async function isTrackingRunning(): Promise<boolean> {
+  try {
+    return await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+  } catch {
+    return TaskManager.isTaskRegisteredAsync(LOCATION_TASK_NAME);
+  }
 }

@@ -1,5 +1,9 @@
 import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
+import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
+import { MMKV } from 'react-native-mmkv';
+
+export type PlayingStyle = 'riding' | 'push_cart' | 'walking';
 
 interface HoleProgress {
   holeNumber: number;
@@ -11,70 +15,85 @@ interface RoundState {
   activeRoundId: string | null;
   courseId: string | null;
   courseName: string | null;
-  playingStyle: 'riding' | 'push_cart' | 'walking' | null;
+  playingStyle: PlayingStyle | null;
   startedAt: number | null;
   currentHole: number;
   holeProgress: HoleProgress[];
   gpsStatus: 'active' | 'searching' | 'lost';
   backgroundMonitoringActive: boolean;
 
-  startRound: (courseId: string, courseName: string, playingStyle: RoundState['playingStyle']) => void;
+  startRound: (courseId: string, courseName: string, playingStyle: PlayingStyle) => void;
   endRound: () => void;
-  advanceHole: () => void;
-  markGreenArrival: () => void;
-  markGreenDeparture: () => void;
+  setCurrentHole: (hole: number) => void;
+  recordGreenVisit: (holeNumber: number, arrivedAt: number, leftAt: number) => void;
   setGpsStatus: (status: RoundState['gpsStatus']) => void;
 }
 
-export const useRoundStore = create<RoundState>((set, get) => ({
-  activeRoundId: null,
-  courseId: null,
-  courseName: null,
-  playingStyle: null,
-  startedAt: null,
-  currentHole: 1,
-  holeProgress: [],
-  gpsStatus: 'searching',
-  backgroundMonitoringActive: false,
+const mmkv = new MMKV({ id: 'round-session' });
+const mmkvStorage: StateStorage = {
+  getItem: (name) => mmkv.getString(name) ?? null,
+  setItem: (name, value) => mmkv.set(name, value),
+  removeItem: (name) => mmkv.delete(name),
+};
 
-  startRound: (courseId, courseName, playingStyle) =>
-    set({
-      activeRoundId: Crypto.randomUUID(),
-      courseId,
-      courseName,
-      playingStyle,
-      startedAt: Date.now(),
+/**
+ * Persisted to MMKV so an in-progress round survives the app being closed or
+ * relaunched in the background by the OS. gpsStatus is runtime-only.
+ */
+export const useRoundStore = create<RoundState>()(
+  persist(
+    (set) => ({
+      activeRoundId: null,
+      courseId: null,
+      courseName: null,
+      playingStyle: null,
+      startedAt: null,
       currentHole: 1,
       holeProgress: [],
-      backgroundMonitoringActive: true,
-    }),
-
-  endRound: () =>
-    set({
-      activeRoundId: null,
+      gpsStatus: 'searching',
       backgroundMonitoringActive: false,
+
+      startRound: (courseId, courseName, playingStyle) =>
+        set({
+          activeRoundId: Crypto.randomUUID(),
+          courseId,
+          courseName,
+          playingStyle,
+          startedAt: Date.now(),
+          currentHole: 1,
+          holeProgress: [],
+          backgroundMonitoringActive: true,
+        }),
+
+      endRound: () =>
+        set({
+          activeRoundId: null,
+          courseId: null,
+          courseName: null,
+          playingStyle: null,
+          startedAt: null,
+          currentHole: 1,
+          holeProgress: [],
+          backgroundMonitoringActive: false,
+          gpsStatus: 'searching',
+        }),
+
+      setCurrentHole: (hole) => set({ currentHole: Math.max(1, hole) }),
+
+      recordGreenVisit: (holeNumber, arrivedAt, leftAt) =>
+        set((state) => ({
+          holeProgress: [
+            ...state.holeProgress.filter((h) => h.holeNumber !== holeNumber),
+            { holeNumber, arrivedGreenAt: arrivedAt, leftGreenAt: leftAt },
+          ],
+        })),
+
+      setGpsStatus: (status) => set({ gpsStatus: status }),
     }),
-
-  advanceHole: () => set((state) => ({ currentHole: state.currentHole + 1 })),
-
-  markGreenArrival: () =>
-    set((state) => ({
-      holeProgress: [
-        ...state.holeProgress,
-        {
-          holeNumber: state.currentHole,
-          arrivedGreenAt: Date.now(),
-          leftGreenAt: null,
-        },
-      ],
-    })),
-
-  markGreenDeparture: () =>
-    set((state) => ({
-      holeProgress: state.holeProgress.map((h) =>
-        h.holeNumber === state.currentHole ? { ...h, leftGreenAt: Date.now() } : h
-      ),
-    })),
-
-  setGpsStatus: (status) => set({ gpsStatus: status }),
-}));
+    {
+      name: 'active-round',
+      storage: createJSONStorage(() => mmkvStorage),
+      partialize: ({ gpsStatus: _gps, ...rest }) => rest,
+    }
+  )
+);

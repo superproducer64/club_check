@@ -1,4 +1,3 @@
-import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 
 interface PendingReminder {
@@ -12,34 +11,22 @@ interface ReminderState {
   pendingReminder: PendingReminder | null;
   lastReminderId: string | null;
 
-  triggerReminder: (lat: number, lng: number) => string;
-  confirmReminder: () => void;
-  dismissReminder: () => void;
-  flagFalsePositive: () => void;
+  triggerReminder: (id: string, lat: number, lng: number) => void;
+  /** Clear the pending reminder once the golfer has responded to it. */
+  resolve: (id: string) => void;
 }
 
 export const useReminderStore = create<ReminderState>((set, get) => ({
   pendingReminder: null,
   lastReminderId: null,
 
-  triggerReminder: (lat, lng) => {
-    const id = Crypto.randomUUID();
+  triggerReminder: (id, lat, lng) =>
     set({
       pendingReminder: { id, triggeredAt: Date.now(), lat, lng },
       lastReminderId: id,
-    });
-    return id;
-  },
+    }),
 
-  confirmReminder: () => {
-    set({ pendingReminder: null });
-  },
-
-  dismissReminder: () => {
-    set({ pendingReminder: null });
-  },
-
-  flagFalsePositive: () => {
-    set({ pendingReminder: null });
+  resolve: (id) => {
+    if (get().pendingReminder?.id === id) set({ pendingReminder: null });
   },
 }));

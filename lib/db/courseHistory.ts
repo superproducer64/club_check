@@ -17,34 +17,31 @@ export async function getHoleGreens(courseId: string): Promise<HoleGreenRecord[]
   }
 }
 
+/** Record that a round started at this course (creates the course on first play). */
+export async function touchCourse(courseId: string, courseName: string) {
+  const db = getDb();
+  await db.runAsync(
+    `INSERT INTO course_history (course_id, course_name, last_played_at, times_played, saved_hole_layout)
+     VALUES (?, ?, ?, 1, NULL)
+     ON CONFLICT(course_id) DO UPDATE SET
+       course_name = excluded.course_name,
+       last_played_at = excluded.last_played_at,
+       times_played = times_played + 1`,
+    [courseId, courseName, Date.now()]
+  );
+}
+
+/** Save one hole's learned green into the course's layout. */
 export async function upsertHoleGreen(courseId: string, record: HoleGreenRecord) {
   const db = getDb();
   const existing = await getHoleGreens(courseId);
   const updated = existing.filter((r) => r.holeNumber !== record.holeNumber);
   updated.push(record);
 
-  const courseName = await getCourseNameOrFallback(courseId);
-
-  await db.runAsync(
-    `INSERT INTO course_history (course_id, course_name, last_played_at, times_played, saved_hole_layout)
-     VALUES (?, ?, ?, 1, ?)
-     ON CONFLICT(course_id) DO UPDATE SET
-       last_played_at = excluded.last_played_at,
-       times_played = times_played + 1,
-       saved_hole_layout = excluded.saved_hole_layout`,
-    [courseId, courseName, Date.now(), JSON.stringify(updated)]
-  );
-}
-
-async function getCourseNameOrFallback(courseId: string): Promise<string> {
-  const db = getDb();
-  const existing = await db.getFirstAsync<{ course_name: string }>(
-    `SELECT course_name FROM course_history WHERE course_id = ?`,
-    [courseId]
-  );
-  // course_name gets set properly on round creation via rounds.create();
-  // this fallback only matters on the very first upsert for a brand-new course
-  return existing?.course_name ?? 'Unknown Course';
+  await db.runAsync(`UPDATE course_history SET saved_hole_layout = ? WHERE course_id = ?`, [
+    JSON.stringify(updated),
+    courseId,
+  ]);
 }
 
 export async function getRecentCourses(limit = 10) {

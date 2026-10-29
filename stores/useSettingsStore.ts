@@ -13,6 +13,7 @@ interface SettingsState {
   darkMode: boolean;
   units: 'imperial' | 'metric';
   alertMode: 'voice' | 'tone' | 'vibration' | 'silent';
+  playingStyle: 'riding' | 'push_cart' | 'walking';
 
   updateSetting: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
   hydrate: () => void;
@@ -28,6 +29,7 @@ const defaults = {
   darkMode: false,
   units: 'imperial' as const,
   alertMode: 'voice' as const,
+  playingStyle: 'walking' as 'riding' | 'push_cart' | 'walking',
 };
 
 export const useSettingsStore = create<SettingsState>((set) => ({

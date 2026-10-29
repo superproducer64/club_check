@@ -1,7 +1,16 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { useEffect } from 'react';
+import { useRoundStore } from '../../stores/useRoundStore';
 
 export default function HomeScreen() {
+  const activeRoundId = useRoundStore((s) => s.activeRoundId);
+
+  // A round is still in progress (app was closed mid-round): go straight back to it.
+  useEffect(() => {
+    if (activeRoundId) router.replace('/(main)/round/active');
+  }, [activeRoundId]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -25,7 +34,7 @@ export default function HomeScreen() {
           <Text style={styles.secondaryButtonText}>Settings</Text>
         </Pressable>
 
-        <Pressable style={styles.tertiaryButton}>
+        <Pressable style={styles.tertiaryButton} onPress={() => router.push('/(main)/help')}>
           <Text style={styles.tertiaryButtonText}>Help</Text>
         </Pressable>
       </View>
@@ -34,7 +43,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: 'space-between' },
+  container: { flex: 1, padding: 24, justifyContent: 'space-between', backgroundColor: '#fff' },
   header: { marginTop: 80, alignItems: 'center' },
   title: { fontSize: 32, fontWeight: '700' },
   tagline: { fontSize: 15, color: '#666', marginTop: 6 },
