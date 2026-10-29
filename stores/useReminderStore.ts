@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 
 interface PendingReminder {
@@ -22,7 +23,7 @@ export const useReminderStore = create<ReminderState>((set, get) => ({
   lastReminderId: null,
 
   triggerReminder: (lat, lng) => {
-    const id = crypto.randomUUID();
+    const id = Crypto.randomUUID();
     set({
       pendingReminder: { id, triggeredAt: Date.now(), lat, lng },
       lastReminderId: id,

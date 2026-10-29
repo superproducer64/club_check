@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import { create } from 'zustand';
 
 interface HoleProgress {
@@ -38,7 +39,7 @@ export const useRoundStore = create<RoundState>((set, get) => ({
 
   startRound: (courseId, courseName, playingStyle) =>
     set({
-      activeRoundId: crypto.randomUUID(),
+      activeRoundId: Crypto.randomUUID(),
       courseId,
       courseName,
       playingStyle,

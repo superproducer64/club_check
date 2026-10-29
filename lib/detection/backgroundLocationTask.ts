@@ -14,7 +14,7 @@ export function unregisterLocationHandler() {
   activeHandler = null;
 }
 
-TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
+TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
   if (error) {
     console.error('[ClubCheck] background location task error:', error.message);
     return;
