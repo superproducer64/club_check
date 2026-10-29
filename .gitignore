@@ -1,2 +1,16 @@
-node_modules/ 
-.expo/ 
+node_modules/
+.expo/
+dist/
+.verify-build/
+
+# Generated native projects (EAS builds them from app.json)
+ios/
+android/
+
+# Signing keys and secrets: never commit
+*.p8
+*.p12
+*.mobileprovision
+*.keystore
+.env
+.env.*
