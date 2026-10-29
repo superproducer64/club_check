@@ -9,7 +9,6 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.bgpstudios.clubcheck",
-      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
           "location"
@@ -21,7 +20,6 @@
     },
     "android": {
       "package": "com.bgpstudios.clubcheck",
-      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2E7D32"
