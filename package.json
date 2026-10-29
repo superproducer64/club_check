@@ -9,6 +9,7 @@
     "build:dev": "eas build --profile development --platform all"
   },
   "dependencies": {
+    "babel-preset-expo": "~54.0.10",
     "expo": "~54.0.38",
     "expo-constants": "~18.0.14",
     "expo-crypto": "~15.0.9",
