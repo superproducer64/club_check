@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.bgpstudios.clubcheck",
+      "bundleIdentifier": "com.clubcheck.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "location"
