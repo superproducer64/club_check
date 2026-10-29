@@ -7,11 +7,12 @@
     "scheme": "clubcheck",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "com.clubcheck.app",
-      "infoPlist": {
-        "UIBackgroundModes": [
-          "location"
+  "supportsTablet": false,
+  "bundleIdentifier": "com.clubcheck.app",
+  "buildNumber": "3",
+  "infoPlist": {
+    "UIBackgroundModes": [
+      "location"
         ],
         "NSLocationWhenInUseUsageDescription": "Club Check uses your location during a round to notice when you leave a green and remind you to check for your clubs.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Club Check uses your location during a round, including while your phone is locked in your pocket or golf bag, to notice when you leave a green and remind you to check for your clubs. Location is only used during rounds you start and never leaves your phone.",
